@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { GraduationCap } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { GraduationCap, Settings } from "lucide-react";
 
 const ParentLogin = () => {
   const [studentCode, setStudentCode] = useState("");
@@ -49,6 +49,16 @@ const ParentLogin = () => {
             </Button>
           </form>
         </CardContent>
+        <CardFooter className="flex justify-center border-t pt-6">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/admin')}
+            className="gap-2"
+          >
+            <Settings className="w-4 h-4" />
+            لوحة التحكم الإدارية
+          </Button>
+        </CardFooter>
       </Card>
     </div>
   );
