@@ -11,24 +11,40 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      if (isSignUp) {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/admin`
+          }
+        });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast.success("تم تسجيل الدخول بنجاح");
-      navigate("/admin");
+        toast.success("تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول");
+        setIsSignUp(false);
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) throw error;
+
+        toast.success("تم تسجيل الدخول بنجاح");
+        navigate("/admin");
+      }
     } catch (error: any) {
-      toast.error(error.message || "حدث خطأ أثناء تسجيل الدخول");
+      toast.error(error.message || "حدث خطأ أثناء العملية");
     } finally {
       setLoading(false);
     }
@@ -43,11 +59,11 @@ const Auth = () => {
           </div>
           <CardTitle className="text-3xl font-bold">لوحة الإدارة</CardTitle>
           <CardDescription className="text-lg">
-            تسجيل الدخول للوصول إلى صفحة الإدارة
+            {isSignUp ? "إنشاء حساب جديد للإدارة" : "تسجيل الدخول للوصول إلى صفحة الإدارة"}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium">
                 البريد الإلكتروني
@@ -72,11 +88,22 @@ const Auth = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                minLength={6}
               />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
+              {loading ? "جاري المعالجة..." : (isSignUp ? "إنشاء حساب" : "تسجيل الدخول")}
             </Button>
+            <div className="text-center">
+              <Button
+                type="button"
+                variant="link"
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="text-sm"
+              >
+                {isSignUp ? "لديك حساب بالفعل؟ تسجيل الدخول" : "ليس لديك حساب؟ إنشاء حساب جديد"}
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>
