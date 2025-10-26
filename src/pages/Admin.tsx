@@ -23,7 +23,26 @@ const Admin = () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       navigate("/auth");
+      setLoading(false);
+      return;
     }
+
+    // Check if user has admin role
+    const { data: roleData, error } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", session.user.id)
+      .eq("role", "admin")
+      .single();
+
+    if (error || !roleData) {
+      toast.error("ليس لديك صلاحيات الوصول لهذه الصفحة");
+      await supabase.auth.signOut();
+      navigate("/auth");
+      setLoading(false);
+      return;
+    }
+
     setLoading(false);
   };
 
